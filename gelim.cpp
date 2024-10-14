@@ -33,6 +33,18 @@ gauss(vector<int>& p_order)
     bool singular = false;
     for (int i = 0; i < this->size(); ++i) p_order.push_back(i);
 
+    for (i = 0; i < p_order.size(); ++i)
+    {
+
+        for (j = 0; j < p_order[0].size(); ++j)
+        {
+
+
+
+        }
+
+    }
+
     return singular;
 
 }
