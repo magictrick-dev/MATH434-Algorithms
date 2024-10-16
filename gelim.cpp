@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cmath>
 using std::vector;
 
 // --- Matrix ------------------------------------------------------------------
@@ -18,6 +19,7 @@ class Matrix
         inline void add_row(vector<double> row) { this->rows.push_back(row); }
         inline vector<double>& operator[](int row) { return this->rows[row]; }
         inline size_t size() const { return this->rows.size(); }
+        inline double& at(int i, int j) { return this->rows[i][j]; }
 
         bool gauss(vector<int>& p_order);
 
@@ -33,14 +35,49 @@ gauss(vector<int>& p_order)
     bool singular = false;
     for (int i = 0; i < this->size(); ++i) p_order.push_back(i);
 
-    for (i = 0; i < p_order.size(); ++i)
+    for (int k = 0; k < this->rows.size() - 1; ++k)
     {
 
-        for (j = 0; j < p_order[0].size(); ++j)
+        // amax <- max {|ak,k|, |ak+1,k|...}
+        int a_max = 0;
+        int a_row = 0;
+        for (int a = k; a < this->rows.size(); ++a)
         {
+            int v = abs(this->at(a, k));
+            if (v > a_max) 
+            {
+                a_max = v;
+                a_row = a;
+            }
+        }
 
+        // if(amax == 0), Singular
+        if (a_max == 0)
+        {
+            singular = true;
+            return singular;
+        }
 
+        // Interchange p.
+        int temp = p_order[k];
+        p_order[k] = a_row;
+        p_order[a_row] = temp;
 
+        // Interchange rows & multipliers.
+        if (a_row != k && k != 0)
+        {
+            auto temp = this->rows[k];
+            this->rows[k] = this->rows[a_row];
+            this->rows[a_row] = temp;
+        }
+
+        for (int i = k + 1; i < this->rows.size(); ++i)
+        {
+            this->at(i, k) = this->at(i, k) / this->at(k, k);
+            for (int j = k + 1; j < this->rows.size(); ++j)
+            {
+                this->at(i, j) -= (this->at(i, k) * this->at(k, j));
+            }
         }
 
     }
@@ -86,6 +123,7 @@ main(int argc, char ** argv)
     A.add_row({ 2, 2, -4 });
     A.add_row({ 1, 1,  5 });
     A.add_row({ 1, 3,  6 });
+    std::cout << A << std::endl;
 
     vector<int> p_order;
     bool is_singular = A.gauss(p_order);
